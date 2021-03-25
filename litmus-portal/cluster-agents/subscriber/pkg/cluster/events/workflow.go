@@ -65,6 +65,12 @@ func startWatch(stopCh <-chan struct{}, s cache.SharedIndexInformer, stream chan
 	s.Run(stopCh)
 }
 
+// responsible for getting chaos events related information
+func chaosEventInfo(cd *types.ChaosData) string {
+	eventInfo := cd.EngineUID
+	return eventInfo
+}
+
 // responsible for extracting the required data from the event and streaming
 func workflowEventHandler(obj interface{}, eventType string, stream chan types.WorkflowEvent, startTime int64) {
 	workflowObj := obj.(*v1alpha1.Workflow)
@@ -89,6 +95,9 @@ func workflowEventHandler(obj interface{}, eventType string, stream chan types.W
 		if nodeStatus.Type == "Pod" && nodeStatus.Inputs != nil && len(nodeStatus.Inputs.Artifacts) == 1 {
 			//extracts chaos data
 			nodeType, cd, err = CheckChaosData(nodeStatus, workflowObj.ObjectMeta.Namespace, chaosClient)
+			if cd != nil {
+				chaosEventInfo(cd)
+			}
 			if err != nil {
 				logrus.WithError(err).Print("FAILED PARSING CHAOS ENGINE CRD")
 			}
