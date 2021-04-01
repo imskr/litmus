@@ -9,6 +9,7 @@ import (
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"
 	"github.com/argoproj/argo/pkg/client/informers/externalversions"
 	clients "github.com/litmuschaos/litmus-go/pkg/clients"
+	v1beta1 "k8s.io/client-go/kubernetes/typed/events/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	litmusV1alpha1 "github.com/litmuschaos/chaos-operator/pkg/client/clientset/versioned/typed/litmuschaos/v1alpha1"
 	"github.com/litmuschaos/litmus/litmus-portal/cluster-agents/subscriber/pkg/k8s"
@@ -68,7 +69,7 @@ func startWatch(stopCh <-chan struct{}, s cache.SharedIndexInformer, stream chan
 }
 
 // responsible for getting chaos events related information
-func chaosEventInfo(cd *types.ChaosData) (EventInterface, error) {
+func chaosEventInfo(cd *types.ChaosData) (*v1beta1.events, error) {
 	var eventsDetails *types.EventDetails 
 	var clients clients.ClientSets
 	
