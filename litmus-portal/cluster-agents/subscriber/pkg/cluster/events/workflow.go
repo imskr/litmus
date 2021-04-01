@@ -8,6 +8,8 @@ import (
 	"github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"
 	"github.com/argoproj/argo/pkg/client/informers/externalversions"
+	clients "github.com/litmuschaos/litmus-go/pkg/clients"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	litmusV1alpha1 "github.com/litmuschaos/chaos-operator/pkg/client/clientset/versioned/typed/litmuschaos/v1alpha1"
 	"github.com/litmuschaos/litmus/litmus-portal/cluster-agents/subscriber/pkg/k8s"
 	"github.com/litmuschaos/litmus/litmus-portal/cluster-agents/subscriber/pkg/types"
@@ -66,9 +68,16 @@ func startWatch(stopCh <-chan struct{}, s cache.SharedIndexInformer, stream chan
 }
 
 // responsible for getting chaos events related information
-func chaosEventInfo(cd *types.ChaosData) string {
-	eventInfo := cd.EngineUID
-	return eventInfo
+func chaosEventInfo(cd *types.ChaosData) (EventInterface, error) {
+	var eventsDetails *types.EventDetails 
+	var clients clients.ClientSets
+	
+	eventName := eventsDetails.Reason + cd.ExperimentName + cd.EngineUID
+	event, err := clients.KubeClient.CoreV1().Events(cd.Namespace).Get(eventName, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return event, nil
 }
 
 // responsible for extracting the required data from the event and streaming
