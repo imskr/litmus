@@ -7,14 +7,13 @@ require (
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/gorilla/websocket v1.4.0
 	github.com/imdario/mergo v0.3.10 // indirect
-	github.com/litmuschaos/chaos-operator v0.0.0-20200815164629-86987255efd0
-	github.com/sirupsen/logrus v1.6.0
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
+	github.com/litmuschaos/chaos-operator v0.0.0-20210312154932-c2d4b2ff7b19
+	github.com/litmuschaos/litmus-go v0.0.0-20210325175129-8d7cee05f245
+	github.com/sirupsen/logrus v1.7.0
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	k8s.io/api v0.17.3
 	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v12.0.0+incompatible
-	k8s.io/utils v0.0.0-20200414100711-2df71ebbae66 // indirect
 )
 
 // Pinned to kubernetes-1.16.2

@@ -8,13 +8,13 @@ import (
 	"github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"
 	"github.com/argoproj/argo/pkg/client/informers/externalversions"
-	clients "github.com/litmuschaos/litmus-go/pkg/clients"
-	v1beta1 "k8s.io/client-go/kubernetes/typed/events/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	litmusV1alpha1 "github.com/litmuschaos/chaos-operator/pkg/client/clientset/versioned/typed/litmuschaos/v1alpha1"
+	clients "github.com/litmuschaos/litmus-go/pkg/clients"
 	"github.com/litmuschaos/litmus/litmus-portal/cluster-agents/subscriber/pkg/k8s"
 	"github.com/litmuschaos/litmus/litmus-portal/cluster-agents/subscriber/pkg/types"
 	"github.com/sirupsen/logrus"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -69,11 +69,10 @@ func startWatch(stopCh <-chan struct{}, s cache.SharedIndexInformer, stream chan
 }
 
 // responsible for getting chaos events related information
-func chaosEventInfo(cd *types.ChaosData) (*v1beta1.events, error) {
-	var eventsDetails *types.EventDetails 
+func chaosEventInfo(cd *types.ChaosData) (*v1.Event, error) {
 	var clients clients.ClientSets
-	
-	eventName := eventsDetails.Reason + cd.ExperimentName + cd.EngineUID
+
+	eventName := cd.ExperimentName + cd.EngineUID
 	event, err := clients.KubeClient.CoreV1().Events(cd.Namespace).Get(eventName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
