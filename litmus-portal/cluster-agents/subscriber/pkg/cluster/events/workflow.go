@@ -9,13 +9,15 @@ import (
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"
 	"github.com/argoproj/argo/pkg/client/informers/externalversions"
 	litmusV1alpha1 "github.com/litmuschaos/chaos-operator/pkg/client/clientset/versioned/typed/litmuschaos/v1alpha1"
-	clients "github.com/litmuschaos/litmus-go/pkg/clients"
 	"github.com/litmuschaos/litmus/litmus-portal/cluster-agents/subscriber/pkg/k8s"
 	"github.com/litmuschaos/litmus/litmus-portal/cluster-agents/subscriber/pkg/types"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 // 0 means no resync
@@ -26,6 +28,7 @@ const (
 var (
 	AgentScope     = os.Getenv("AGENT_SCOPE")
 	AgentNamespace = os.Getenv("AGENT_NAMESPACE")
+	KubeConfig     = os.Getenv("KUBE_CONFIG")
 )
 
 // initializes the Argo Workflow event watcher
@@ -68,12 +71,31 @@ func startWatch(stopCh <-chan struct{}, s cache.SharedIndexInformer, stream chan
 	s.Run(stopCh)
 }
 
+func GetKubeConfig() (*rest.Config, error) {
+	// Use in-cluster config if kubeconfig path is not specified
+	if KubeConfig == "" {
+		return rest.InClusterConfig()
+	}
+	return clientcmd.BuildConfigFromFlags("", KubeConfig)
+}
+func K8sClient() (*kubernetes.Clientset, error) {
+	config, err := GetKubeConfig()
+	if err != nil {
+		return nil, err
+	}
+	return kubernetes.NewForConfig(config)
+}
+
 // responsible for getting chaos events related information
 func chaosEventInfo(cd *types.ChaosData) (*v1.Event, error) {
-	var clients clients.ClientSets
+
+	k8sclient, err := K8sClient()
+	if err != nil {
+		return nil, err
+	}
 
 	eventName := cd.ExperimentName + cd.EngineUID
-	event, err := clients.KubeClient.CoreV1().Events(cd.Namespace).Get(eventName, metav1.GetOptions{})
+	event, err := k8sclient.CoreV1().Events(cd.Namespace).Get(eventName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
