@@ -88,14 +88,16 @@ func K8sClient() (*kubernetes.Clientset, error) {
 
 // responsible for getting chaos events related information
 func chaosEventInfo(cd *types.ChaosData) (*v1.Event, error) {
-
 	k8sclient, err := K8sClient()
 	if err != nil {
 		return nil, err
 	}
 
-	eventName := cd.ExperimentName + cd.EngineUID
+	eventName := cd.EngineUID
+	logrus.WithFields(logrus.Fields{}).Info(eventName)
+
 	event, err := k8sclient.CoreV1().Events(cd.Namespace).Get(eventName, metav1.GetOptions{})
+	logrus.WithFields(logrus.Fields{}).Info(event)
 	if err != nil {
 		return nil, err
 	}
@@ -126,8 +128,12 @@ func workflowEventHandler(obj interface{}, eventType string, stream chan types.W
 		if nodeStatus.Type == "Pod" && nodeStatus.Inputs != nil && len(nodeStatus.Inputs.Artifacts) == 1 {
 			//extracts chaos data
 			nodeType, cd, err = CheckChaosData(nodeStatus, workflowObj.ObjectMeta.Namespace, chaosClient)
+			logrus.WithFields(logrus.Fields{}).Print("*****Following is CD********/n/n")
+			logrus.WithFields(logrus.Fields{}).Info(cd)
 			if cd != nil {
+				logrus.WithFields(logrus.Fields{}).Print("*****Start of chaosEventInfo********/n/n")
 				chaosEventInfo(cd)
+				logrus.WithFields(logrus.Fields{}).Print("*****End of chaosEventInfo********/n/n")
 			}
 			if err != nil {
 				logrus.WithError(err).Print("FAILED PARSING CHAOS ENGINE CRD")
