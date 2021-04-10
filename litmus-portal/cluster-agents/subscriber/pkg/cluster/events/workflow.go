@@ -129,7 +129,6 @@ func workflowEventHandler(obj interface{}, eventType string, stream chan types.W
 		if nodeStatus.Type == "Pod" && nodeStatus.Inputs != nil && len(nodeStatus.Inputs.Artifacts) == 1 {
 			//extracts chaos data
 			nodeType, cd, err = CheckChaosData(nodeStatus, workflowObj.ObjectMeta.Namespace, chaosClient)
-			logrus.WithFields(logrus.Fields{}).Print("*****Following is CD********/n/n")
 			logrus.WithFields(logrus.Fields{}).Info(cd)
 			if cd != nil {
 				chaosEventInfo(cd)
