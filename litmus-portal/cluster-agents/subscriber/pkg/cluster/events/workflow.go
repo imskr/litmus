@@ -93,10 +93,11 @@ func chaosEventInfo(cd *types.ChaosData) (*v1.Event, error) {
 		return nil, err
 	}
 
-	eventName := cd.EngineUID
+	eventName := cd.ExperimentName + cd.EngineUID
 	logrus.WithFields(logrus.Fields{}).Info(eventName)
 
 	event, err := k8sclient.CoreV1().Events(cd.Namespace).Get(eventName, metav1.GetOptions{})
+	
 	logrus.WithFields(logrus.Fields{}).Info(event)
 	if err != nil {
 		return nil, err
@@ -131,9 +132,7 @@ func workflowEventHandler(obj interface{}, eventType string, stream chan types.W
 			logrus.WithFields(logrus.Fields{}).Print("*****Following is CD********/n/n")
 			logrus.WithFields(logrus.Fields{}).Info(cd)
 			if cd != nil {
-				logrus.WithFields(logrus.Fields{}).Print("*****Start of chaosEventInfo********/n/n")
 				chaosEventInfo(cd)
-				logrus.WithFields(logrus.Fields{}).Print("*****End of chaosEventInfo********/n/n")
 			}
 			if err != nil {
 				logrus.WithError(err).Print("FAILED PARSING CHAOS ENGINE CRD")
