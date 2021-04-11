@@ -87,22 +87,26 @@ func K8sClient() (*kubernetes.Clientset, error) {
 }
 
 // responsible for getting chaos events related information
-func chaosEventInfo(cd *types.ChaosData) (*v1.Event, error) {
+func chaosEventInfo(cd *types.ChaosData) (*v1.EventList, error) {
 	k8sclient, err := K8sClient()
 	if err != nil {
 		return nil, err
 	}
 
-	eventName := "Summary" + cd.ExperimentName + cd.EngineUID
-	logrus.WithFields(logrus.Fields{}).Print("----------Event Name-------- ", eventName)
+	finalEventList := v1.EventList{}
 
-	event, err := k8sclient.CoreV1().Events(cd.Namespace).Get(eventName, metav1.GetOptions{})
-
-	logrus.WithFields(logrus.Fields{}).Info(event)
+	eventsList, err := k8sclient.CoreV1().Events(cd.Namespace).List(metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
-	return event, nil
+
+	for _, event := range eventsList.Items {
+		if event.Reason == "Summary" {
+			finalEventList.Items = append(finalEventList.Items, event)
+		}
+	}
+
+	return &finalEventList, nil
 }
 
 // responsible for extracting the required data from the event and streaming
