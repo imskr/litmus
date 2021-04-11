@@ -7,7 +7,8 @@ require (
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/gorilla/websocket v1.4.0
 	github.com/imdario/mergo v0.3.10 // indirect
-	github.com/litmuschaos/chaos-operator v0.0.0-20210312154932-c2d4b2ff7b19
+	github.com/litmuschaos/chaos-operator v0.0.0-20210325093226-50a357ad2256
+	github.com/litmuschaos/chaos-runner v0.0.0-20210325103324-b44ab7ea0a5b
 	github.com/litmuschaos/litmus-go v0.0.0-20210325175129-8d7cee05f245
 	github.com/sirupsen/logrus v1.7.0
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect

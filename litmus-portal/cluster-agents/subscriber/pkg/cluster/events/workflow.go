@@ -93,11 +93,11 @@ func chaosEventInfo(cd *types.ChaosData) (*v1.Event, error) {
 		return nil, err
 	}
 
-	eventName := cd.ExperimentName + cd.EngineUID
-	logrus.WithFields(logrus.Fields{}).Info(eventName)
+	eventName := "Summary" + cd.ExperimentName + cd.EngineUID
+	logrus.WithFields(logrus.Fields{}).Print("----------Event Name-------- ", eventName)
 
 	event, err := k8sclient.CoreV1().Events(cd.Namespace).Get(eventName, metav1.GetOptions{})
-	
+
 	logrus.WithFields(logrus.Fields{}).Info(event)
 	if err != nil {
 		return nil, err
@@ -125,6 +125,7 @@ func workflowEventHandler(obj interface{}, eventType string, stream chan types.W
 	for _, nodeStatus := range workflowObj.Status.Nodes {
 		nodeType := string(nodeStatus.Type)
 		var cd *types.ChaosData = nil
+		// eventDetails := goTypes.EventDetails{}
 		// considering chaos workflow has only 1 artifact with manifest as raw data
 		if nodeStatus.Type == "Pod" && nodeStatus.Inputs != nil && len(nodeStatus.Inputs.Artifacts) == 1 {
 			//extracts chaos data
