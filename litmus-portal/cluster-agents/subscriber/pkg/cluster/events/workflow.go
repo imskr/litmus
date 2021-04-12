@@ -100,11 +100,17 @@ func chaosEventInfo(cd *types.ChaosData) (*v1.EventList, error) {
 		return nil, err
 	}
 
+	logrus.WithFields(logrus.Fields{}).Print("--------Event List: -----------")
+	logrus.WithFields(logrus.Fields{}).Info(eventsList)
+
 	for _, event := range eventsList.Items {
-		if event.Reason == "Summary" {
+		if string(event.InvolvedObject.UID) == cd.EngineUID && event.Reason == "Summary" {
 			finalEventList.Items = append(finalEventList.Items, event)
 		}
 	}
+
+	logrus.WithFields(logrus.Fields{}).Print("--------Final Event List: -----------")
+	logrus.WithFields(logrus.Fields{}).Info(finalEventList)
 
 	return &finalEventList, nil
 }
@@ -129,7 +135,6 @@ func workflowEventHandler(obj interface{}, eventType string, stream chan types.W
 	for _, nodeStatus := range workflowObj.Status.Nodes {
 		nodeType := string(nodeStatus.Type)
 		var cd *types.ChaosData = nil
-		// eventDetails := goTypes.EventDetails{}
 		// considering chaos workflow has only 1 artifact with manifest as raw data
 		if nodeStatus.Type == "Pod" && nodeStatus.Inputs != nil && len(nodeStatus.Inputs.Artifacts) == 1 {
 			//extracts chaos data
