@@ -14,10 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 // 0 means no resync
@@ -71,33 +68,18 @@ func startWatch(stopCh <-chan struct{}, s cache.SharedIndexInformer, stream chan
 	s.Run(stopCh)
 }
 
-func GetKubeConfig() (*rest.Config, error) {
-	// Use in-cluster config if kubeconfig path is not specified
-	if KubeConfig == "" {
-		return rest.InClusterConfig()
-	}
-	return clientcmd.BuildConfigFromFlags("", KubeConfig)
-}
-func K8sClient() (*kubernetes.Clientset, error) {
-	config, err := GetKubeConfig()
-	if err != nil {
-		return nil, err
-	}
-	return kubernetes.NewForConfig(config)
-}
-
 // responsible for getting chaos events related information
-func chaosEventInfo(cd *types.ChaosData) (*v1.EventList, error) {
-	k8sclient, err := K8sClient()
-	if err != nil {
-		return nil, err
-	}
-
+func chaosEventInfo(cd *types.ChaosData) (v1.EventList, error) {
 	finalEventList := v1.EventList{}
+	
+	k8sclient, err := k8s.GetGenericK8sClient()
+	if err != nil {
+		return v1.EventList{}, err
+	}
 
 	eventsList, err := k8sclient.CoreV1().Events(cd.Namespace).List(metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return v1.EventList{}, err
 	}
 
 	logrus.WithFields(logrus.Fields{}).Print("--------Event List: -----------")
@@ -112,7 +94,7 @@ func chaosEventInfo(cd *types.ChaosData) (*v1.EventList, error) {
 	logrus.WithFields(logrus.Fields{}).Print("--------Final Event List: -----------")
 	logrus.WithFields(logrus.Fields{}).Info(finalEventList)
 
-	return &finalEventList, nil
+	return finalEventList, nil
 }
 
 // responsible for extracting the required data from the event and streaming
@@ -139,6 +121,7 @@ func workflowEventHandler(obj interface{}, eventType string, stream chan types.W
 		if nodeStatus.Type == "Pod" && nodeStatus.Inputs != nil && len(nodeStatus.Inputs.Artifacts) == 1 {
 			//extracts chaos data
 			nodeType, cd, err = CheckChaosData(nodeStatus, workflowObj.ObjectMeta.Namespace, chaosClient)
+			logrus.WithFields(logrus.Fields{}).Print("----------- CD ---------")
 			logrus.WithFields(logrus.Fields{}).Info(cd)
 			if cd != nil {
 				chaosEventInfo(cd)
