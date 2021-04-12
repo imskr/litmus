@@ -4,17 +4,32 @@ go 1.14
 
 require (
 	github.com/argoproj/argo v2.5.2+incompatible
+	github.com/emicklei/go-restful v2.12.0+incompatible // indirect
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
+	github.com/go-openapi/spec v0.19.7 // indirect
+	github.com/go-openapi/swag v0.19.9 // indirect
+	github.com/google/go-cmp v0.5.4 // indirect
+	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/gorilla/websocket v1.4.0
 	github.com/imdario/mergo v0.3.10 // indirect
+	github.com/kr/pretty v0.2.0 // indirect
 	github.com/litmuschaos/chaos-operator v0.0.0-20210325093226-50a357ad2256
-	github.com/litmuschaos/chaos-runner v0.0.0-20210325103324-b44ab7ea0a5b
-	github.com/litmuschaos/litmus-go v0.0.0-20210325175129-8d7cee05f245
+	github.com/mailru/easyjson v0.7.1 // indirect
+	github.com/onsi/ginkgo v1.11.0 // indirect
+	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/sirupsen/logrus v1.7.0
+	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
+	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
+	golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
+	google.golang.org/appengine v1.6.6 // indirect
+	google.golang.org/protobuf v1.24.0 // indirect
 	k8s.io/api v0.17.3
 	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v12.0.0+incompatible
+	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c // indirect
+	k8s.io/utils v0.0.0-20200414100711-2df71ebbae66 // indirect
+	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
 // Pinned to kubernetes-1.16.2
